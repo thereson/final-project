@@ -10,9 +10,8 @@ pipeline {
         stage("Create an EKS Cluster") {
             steps {
                 script {
-                    dir('cluster/terraform') {
-                        sh "terraform init"
-                        sh "terraform apply -auto-approve"
+                    dir('eksctl') {
+                        sh "eksctl create cluster -n my-cluster --nodegroup-name my-nodegdroup --region us-east-1"
                     }
                 }
             }
@@ -20,8 +19,8 @@ pipeline {
         stage("Deploy to EKS") {
             steps {
                 script {
-                    dir('cluster/microservices/deploy/kubernetes') {
-			sh "aws eks update-kubeconfig --name myapp-eks-cluster"
+                    dir('eksctl') {
+			sh "kubectl create namespace sock-shop"
                         sh "kubectl apply -f complete-demo.yaml"
 			sh "kubectl get svc -n sock-shop"
 			sh "kubectl get all -n sock-shop"
