@@ -4,7 +4,7 @@ resource "tls_private_key" "keypair" {
 }
 
 resource "aws_key_pair" "deployer" {
-  key_name   = "jenkins-server"
+  key_name   = "ubuntu"
   public_key = tls_private_key.keypair.public_key_openssh
 }
 
