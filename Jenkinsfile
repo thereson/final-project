@@ -11,8 +11,7 @@ pipeline {
             steps {
                 script {
                     dir('eksctl') {
-                        sh "eksctl create cluster -n my-cluster --nodegroup-name my-nodegdroup --region us-east-1"
-                    }
+                        sh "eksctl create cluster -n my-cluster --nodegroup-name my-nodedroup --region us-east-1 --node-type t2.micro --nodes 2"
                 }
             }
         }
