@@ -1,4 +1,3 @@
-#!/usr/bin/env groovy
 pipeline {
     agent any
     environment {
@@ -7,24 +6,55 @@ pipeline {
         AWS_DEFAULT_REGION = "us-east-1"
     }
     stages {
-        stage("Create an EKS Cluster") {
+        stage("Create nginx-conroller") {
             steps {
                 script {
-                    dir('deploy/terraform') {
+                    dir('nginx-controller') {
+                       sh "aws eks --region us-east-1 update-kubeconfig --name demo"
                         sh "terraform init"
                         sh "terraform apply -auto-approve"
                     }
                 }
             }
         }
-        stage("Deploy to EKS") {
+
+        stage("Create prometheus") {
             steps {
                 script {
-                    dir('deploy') {
-			sh "aws eks update-kubeconfig --name myapp-eks-cluster"
-                        sh "kubectl apply -f complete-demo.yaml"
-			sh "kubectl get svc -n sock-shop"
-			sh "kubectl get all -n sock-shop"
+                    dir('prometheus') {
+                        sh "terraform init"
+                        sh "terraform apply -auto-approve"
+                    }
+                }
+            }
+        }
+
+        stage("Deploy voting-app to EKS") {
+            steps {
+                script {
+                    dir('voting-app') {
+                        sh "kubectl apply -f voting-app.yaml"
+                    }
+                }
+            }
+        }
+
+        stage("Deploy sock-shop to EKS") {
+            steps {
+                script {
+                    dir('sock-shop') {
+                        sh "kubectl apply -f complete-deployment.yaml"
+                    }
+                }
+            }
+        }
+
+        stage("Deploy ingress rule to EKS") {
+            steps {
+                script {
+                    dir('ingress-rule') {
+                        sh "terraform init"
+                        sh "terraform apply -auto-approve"
                     }
                 }
             }
